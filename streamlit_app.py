@@ -77,8 +77,13 @@ class GradCAM:
         weights = self.gradients.mean(dim=[2, 3], keepdim=True)
         # Weighted combination of forward activations
         grad_cam_map = torch.relu((weights * self.activations).sum(dim=1, keepdim=True))
-        # Upsample to the input image size
-        grad_cam_map = torch.nn.functional.interpolate(grad_cam_map, size=input_tensor.shape[2:], mode='bilinear', align_corners=False)
+        # Upsample to the input image size (224x224)
+        grad_cam_map = torch.nn.functional.interpolate(
+            grad_cam_map, 
+            size=input_tensor.shape[2:], 
+            mode='bilinear', 
+            align_corners=False
+        )
         grad_cam_map = grad_cam_map.squeeze().cpu().numpy()
         # Normalize between 0 and 1
         grad_cam_map = (grad_cam_map - grad_cam_map.min()) / (grad_cam_map.max() - grad_cam_map.min() + 1e-8)
@@ -87,6 +92,7 @@ class GradCAM:
 # Initialize Grad-CAM with the last convolutional layer (ResNet50's layer4 block)
 target_layer = model.layer4[-1]
 grad_cam = GradCAM(model, target_layer)
+
 # ----------------------------
 # Page configuration for a polished look
 st.set_page_config(
@@ -149,7 +155,7 @@ elif option == "Sample":
 # If an image is available, run model prediction and Grad‑CAM visualization
 if 'image' in locals():
     st.markdown("---")
-    st.markdown("### Model Prediction & Grad‑CAM Visualization")
+    st.success("### Model Prediction & Grad‑CAM Visualization") 
     
     # Preprocess the image and create a batch
     input_img = transform(image)
@@ -159,16 +165,15 @@ if 'image' in locals():
     output = model(input_tensor)
     pred_idx = output.argmax(dim=1).item()
     pred_class = class_names[pred_idx]
-    st.markdown(f"**Predicted Class:** {pred_class}")
+    st.success(f"**Predicted Class:** {pred_class}") 
     
     # Generate Grad‑CAM heatmap for the predicted class
     heatmap = grad_cam(input_tensor, class_idx=pred_idx)
     
-    # Plot the original image with Grad‑CAM overlay
-    fig, ax = plt.subplots(figsize=(6, 6))
-    img_np = np.array(image.resize((224, 224)))
+    # Plot the (224x224) image + Grad‑CAM overlay in a smaller figure
+    fig, ax = plt.subplots(figsize=(4, 4))  # Reduced figure size
+    img_np = np.array(image.resize((224, 224)))  # Show the image at 224x224
     ax.imshow(img_np)
     ax.imshow(heatmap, cmap='jet', alpha=0.5, extent=(0, 224, 224, 0))
     ax.axis('off')
     st.pyplot(fig)
-    
