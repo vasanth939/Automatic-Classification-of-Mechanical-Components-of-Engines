@@ -129,7 +129,7 @@ elif option == "Sample":
         if selected_sample is None:
             selected_sample = sample_files[0]
         image = Image.open(os.path.join(sample_dir, selected_sample)).convert("RGB")
-        st.image(image, caption=f"Selected Image: {selected_sample}", use_column_width=False)
+        st.image(image, caption=f"Selected Image: {selected_sample}", use_container_width=True)
     else:
         st.write("No sample images found in the sample folder.")
 
