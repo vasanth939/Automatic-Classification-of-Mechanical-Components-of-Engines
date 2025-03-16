@@ -2,6 +2,9 @@
 
 This project leverages deep learning techniques to automatically classify mechanical components such as bearings, nuts, gears, and bolts. Accurate classification is vital for applications like sorting, inspection, and quality control in manufacturing processes.
 
+
+# [Live Demo](https://automatic-classification-of-mechanical-components-of-engines.streamlit.app/)
+
 ## Features
 
 - **Deep Learning Models**: Implements models like ResNet-50 for high-accuracy classification.
