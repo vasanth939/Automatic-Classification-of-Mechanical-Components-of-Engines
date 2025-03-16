@@ -172,7 +172,7 @@ if 'image' in locals():
     
     # Plot the (224x224) image + Grad‑CAM overlay in a smaller figure
     fig, ax = plt.subplots(figsize=(4, 4))  # Reduced figure size
-    img_np = np.array(image.resize((224, 224)))  # Show the image at 224x224
+    img_np = np.array(image.resize((22, 22)))  # Show the image at 224x224
     ax.imshow(img_np)
     ax.imshow(heatmap, cmap='jet', alpha=0.5, extent=(0, 22, 22, 0))
     ax.axis('off')
