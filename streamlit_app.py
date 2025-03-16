@@ -102,7 +102,7 @@ if option == "Upload":
     uploaded_file = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
     if uploaded_file is not None:
         image = Image.open(uploaded_file).convert("RGB")
-        st.image(image, caption="Uploaded Image", use_column_width=True)
+        st.image(image, caption="Uploaded Image", use_column_width=False)
 elif option == "Sample":
     sample_dir = "sample_dir"  # Update with your folder name on GitHub
     try:
