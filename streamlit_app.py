@@ -87,17 +87,6 @@ class GradCAM:
 # Initialize Grad-CAM with the last convolutional layer (ResNet50's layer4 block)
 target_layer = model.layer4[-1]
 grad_cam = GradCAM(model, target_layer)
-
-import streamlit as st
-import torch
-import torchvision.transforms as transforms
-from torchvision import models
-import torch.nn as nn
-import numpy as np
-import matplotlib.pyplot as plt
-from PIL import Image
-import os
-
 # ----------------------------
 # Page configuration for a polished look
 st.set_page_config(
@@ -172,13 +161,22 @@ if 'image' in locals():
     pred_class = class_names[pred_idx]
     st.markdown(f"**Predicted Class:** {pred_class}")
     
+    import matplotlib.pyplot as plt
+    import numpy as np
+    
     # Generate Grad‑CAM heatmap for the predicted class
     heatmap = grad_cam(input_tensor, class_idx=pred_idx)
     
+    # Convert 6 cm to inches
+    fig_size = 6 / 2.54  # ~2.36 inches
+    
     # Plot the original image with Grad‑CAM overlay
-    fig, ax = plt.subplots(figsize=(6, 6))
+    fig, ax = plt.subplots(figsize=(fig_size, fig_size))
     img_np = np.array(image.resize((224, 224)))
     ax.imshow(img_np)
     ax.imshow(heatmap, cmap='jet', alpha=0.5, extent=(0, 224, 224, 0))
     ax.axis('off')
+    
+    # Display in Streamlit
     st.pyplot(fig)
+    
