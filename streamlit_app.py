@@ -104,14 +104,19 @@ if option == "Upload":
         image = Image.open(uploaded_file).convert("RGB")
         st.image(image, caption="Uploaded Image", use_column_width=True)
 elif option == "Sample":
-    sample_dir = "sample_images"  # Ensure this folder exists with sample images
-    sample_files = [f for f in os.listdir(sample_dir) if f.lower().endswith((".png", ".jpg", ".jpeg"))]
+    sample_dir = "sample_dir"  # Updated folder name to match your GitHub repository
+    try:
+        sample_files = [f for f in os.listdir(sample_dir) if f.lower().endswith((".png", ".jpg", ".jpeg"))]
+    except FileNotFoundError:
+        st.error(f"Folder '{sample_dir}' not found. Please ensure the folder exists in your repository.")
+        sample_files = []
     if sample_files:
         selected_sample = st.selectbox("Select a sample image", sample_files)
         image = Image.open(os.path.join(sample_dir, selected_sample)).convert("RGB")
         st.image(image, caption=f"Sample Image: {selected_sample}", use_column_width=True)
     else:
-        st.write("No sample images found in the sample_images folder.")
+        st.write("No sample images found in the sample folder.")
+
 
 # If an image is available (either uploaded or sample), run the model prediction and Grad-CAM
 if 'image' in locals():
