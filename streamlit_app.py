@@ -11,6 +11,13 @@ from PIL import Image
 import os
 
 # ----------------------------
+# Streamlit page config
+st.set_page_config(
+    page_title="Mechanical Components Classification Demo",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+# ----------------------------
 # Device configuration
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -90,13 +97,7 @@ class GradCAM:
 target_layer = model.layer4[-1]
 grad_cam = GradCAM(model, target_layer)
 
-# ----------------------------
-# Streamlit page config
-st.set_page_config(
-    page_title="Mechanical Components Classification Demo",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+
 
 st.title("🔧 Mechanical Components Classification Demo")
 st.markdown("""
