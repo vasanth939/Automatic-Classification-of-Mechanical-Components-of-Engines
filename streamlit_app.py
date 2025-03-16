@@ -1,6 +1,7 @@
 import io
 import base64
 import streamlit as st
+st.set_option('server.watchChanges', False)
 import torch
 import torchvision.transforms as transforms
 from torchvision import models
