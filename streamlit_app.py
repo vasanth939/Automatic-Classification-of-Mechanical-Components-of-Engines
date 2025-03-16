@@ -112,7 +112,7 @@ Welcome to the **Mechanical Components Classification Demo**. This interactive a
 
 # ----------------------------
 # Image source selection
-option = st.radio("Select image source:", ("Upload", "Sample"))
+option = st.radio("Select image source:", ("Upload", "Sample"),index=1)
 
 if option == "Upload":
     uploaded_file = st.file_uploader("Upload an image (PNG, JPG, JPEG)", type=["png", "jpg", "jpeg"])
