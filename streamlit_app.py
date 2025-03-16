@@ -88,21 +88,46 @@ class GradCAM:
 target_layer = model.layer4[-1]
 grad_cam = GradCAM(model, target_layer)
 
+import streamlit as st
+import torch
+import torchvision.transforms as transforms
+from torchvision import models
+import torch.nn as nn
+import numpy as np
+import matplotlib.pyplot as plt
+from PIL import Image
+import os
+
 # ----------------------------
-# Streamlit App Layout
-st.title("Mechanical Components Classification Demo")
-st.write("""
-This demo shows automatic classification of mechanical engine components along with a Grad‑CAM visualization to highlight image regions that most influence the prediction.
+# Page configuration for a polished look
+st.set_page_config(
+    page_title="Mechanical Components Classification Demo",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# ----------------------------
+# Title and introduction
+st.title("🔧 Mechanical Components Classification Demo")
+st.markdown("""
+Welcome to the **Mechanical Components Classification Demo**. This interactive app uses a deep learning model to automatically classify mechanical engine components and visualize the model's decision process with Grad‑CAM.
+
+**How to Use the App:**
+- **Upload:** Choose your own image file.
+- **Sample:** Select from our collection of sample images.
+- The model will predict the component type and display a Grad‑CAM heatmap overlay highlighting the regions influencing the prediction.
+---
 """)
 
-# Choose image source: Upload or Sample
+# ----------------------------
+# Option for image source: Upload or Sample
 option = st.radio("Select image source:", ("Upload", "Sample"))
 
 if option == "Upload":
-    uploaded_file = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
+    uploaded_file = st.file_uploader("Upload an image (PNG, JPG, JPEG)", type=["png", "jpg", "jpeg"])
     if uploaded_file is not None:
         image = Image.open(uploaded_file).convert("RGB")
-        st.image(image, caption="Uploaded Image", use_column_width=False)
+        st.image(image, caption="Uploaded Image", width=300)
 elif option == "Sample":
     sample_dir = "sample_dir"  # Update with your folder name on GitHub
     try:
@@ -112,20 +137,18 @@ elif option == "Sample":
         sample_files = []
     
     if sample_files:
-        st.write("Click on one of the thumbnails below to select it for classification:")
+        st.markdown("### Select a Sample Image")
         # Create a grid of thumbnails using 3 columns per row
         cols = st.columns(3)
         selected_sample = None
         for idx, file in enumerate(sample_files):
             img_path = os.path.join(sample_dir, file)
             thumb = Image.open(img_path).convert("RGB")
-            # Display each thumbnail in a grid cell
             with cols[idx % 3]:
-                # Using the file name as a unique key for the button
                 if st.button(file, key=file):
                     selected_sample = file
                 st.image(thumb, caption=file, width=150)
-        # Default to the first image if none was selected
+        # Default to the first image if none is selected
         if selected_sample is None:
             selected_sample = sample_files[0]
         image = Image.open(os.path.join(sample_dir, selected_sample)).convert("RGB")
@@ -133,8 +156,12 @@ elif option == "Sample":
     else:
         st.write("No sample images found in the sample folder.")
 
-# If an image is available (either uploaded or sample), run the model prediction and Grad-CAM
+# ----------------------------
+# If an image is available, run model prediction and Grad‑CAM visualization
 if 'image' in locals():
+    st.markdown("---")
+    st.markdown("### Model Prediction & Grad‑CAM Visualization")
+    
     # Preprocess the image and create a batch
     input_img = transform(image)
     input_tensor = input_img.unsqueeze(0).to(device)
@@ -143,14 +170,13 @@ if 'image' in locals():
     output = model(input_tensor)
     pred_idx = output.argmax(dim=1).item()
     pred_class = class_names[pred_idx]
-    st.write(f"**Predicted Class:** {pred_class}")
+    st.markdown(f"**Predicted Class:** {pred_class}")
     
-    # Generate Grad-CAM heatmap for the predicted class
+    # Generate Grad‑CAM heatmap for the predicted class
     heatmap = grad_cam(input_tensor, class_idx=pred_idx)
     
-    # Plot original image with Grad-CAM overlay
+    # Plot the original image with Grad‑CAM overlay
     fig, ax = plt.subplots(figsize=(6, 6))
-    # Convert image to numpy array for display
     img_np = np.array(image.resize((224, 224)))
     ax.imshow(img_np)
     ax.imshow(heatmap, cmap='jet', alpha=0.5, extent=(0, 224, 224, 0))
