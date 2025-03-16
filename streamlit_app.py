@@ -161,22 +161,14 @@ if 'image' in locals():
     pred_class = class_names[pred_idx]
     st.markdown(f"**Predicted Class:** {pred_class}")
     
-    import matplotlib.pyplot as plt
-    import numpy as np
-    
     # Generate Grad‑CAM heatmap for the predicted class
     heatmap = grad_cam(input_tensor, class_idx=pred_idx)
     
-    # Convert 6 cm to inches
-    fig_size = 6 / 2.54  # ~2.36 inches
-    
     # Plot the original image with Grad‑CAM overlay
-    fig, ax = plt.subplots(figsize=(fig_size, fig_size))
+    fig, ax = plt.subplots(figsize=(6, 6))
     img_np = np.array(image.resize((224, 224)))
     ax.imshow(img_np)
     ax.imshow(heatmap, cmap='jet', alpha=0.5, extent=(0, 224, 224, 0))
     ax.axis('off')
-    
-    # Display in Streamlit
     st.pyplot(fig)
     
