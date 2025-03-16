@@ -165,7 +165,7 @@ if 'image' in locals():
     output = model(input_tensor)
     pred_idx = output.argmax(dim=1).item()
     pred_class = class_names[pred_idx]
-    st.success(f"**Predicted Class:** {pred_class}") 
+    st.success(f"### **Predicted Class:** {pred_class}") 
     
     # Generate Grad‑CAM heatmap for the predicted class
     heatmap = grad_cam(input_tensor, class_idx=pred_idx)
@@ -174,6 +174,6 @@ if 'image' in locals():
     fig, ax = plt.subplots(figsize=(4, 4))  # Reduced figure size
     img_np = np.array(image.resize((224, 224)))  # Show the image at 224x224
     ax.imshow(img_np)
-    ax.imshow(heatmap, cmap='jet', alpha=0.5, extent=(0, 224, 224, 0))
+    ax.imshow(heatmap, cmap='jet', alpha=0.5, extent=(0, 22, 22, 0))
     ax.axis('off')
     st.pyplot(fig)
