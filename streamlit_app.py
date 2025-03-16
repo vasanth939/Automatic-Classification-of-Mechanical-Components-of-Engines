@@ -88,6 +88,16 @@ class GradCAM:
 target_layer = model.layer4[-1]
 grad_cam = GradCAM(model, target_layer)
 
+import streamlit as st
+import torch
+import torchvision.transforms as transforms
+from torchvision import models
+import torch.nn as nn
+import numpy as np
+import matplotlib.pyplot as plt
+from PIL import Image
+import os
+
 # ----------------------------
 # Page configuration for a polished look
 st.set_page_config(
@@ -117,7 +127,7 @@ if option == "Upload":
     uploaded_file = st.file_uploader("Upload an image (PNG, JPG, JPEG)", type=["png", "jpg", "jpeg"])
     if uploaded_file is not None:
         image = Image.open(uploaded_file).convert("RGB")
-        st.image(image, caption="Uploaded Image")  # Display image at its original size
+        st.image(image, caption="Uploaded Image", width=300)
 elif option == "Sample":
     sample_dir = "sample_dir"  # Update with your folder name on GitHub
     try:
@@ -142,7 +152,7 @@ elif option == "Sample":
         if selected_sample is None:
             selected_sample = sample_files[0]
         image = Image.open(os.path.join(sample_dir, selected_sample)).convert("RGB")
-        st.image(image, caption=f"Selected Image: {selected_sample}")
+        st.image(image, caption=f"Selected Image: {selected_sample}", use_container_width=True)
     else:
         st.write("No sample images found in the sample folder.")
 
@@ -152,7 +162,7 @@ if 'image' in locals():
     st.markdown("---")
     st.markdown("### Model Prediction & Grad‑CAM Visualization")
     
-    # Preprocess the image and create a batch for the model (using 224x224 as required by the model)
+    # Preprocess the image and create a batch
     input_img = transform(image)
     input_tensor = input_img.unsqueeze(0).to(device)
     
@@ -162,24 +172,19 @@ if 'image' in locals():
     pred_class = class_names[pred_idx]
     st.markdown(f"**Predicted Class:** {pred_class}")
     
-    # Generate Grad‑CAM heatmap for the predicted class
+   # Generate Grad‑CAM heatmap for the predicted class
     heatmap = grad_cam(input_tensor, class_idx=pred_idx)
     
-    # Resize the Grad‑CAM heatmap to match the original image dimensions
+    # Get original image dimensions
     orig_width, orig_height = image.size
-    # Convert the heatmap to an 8-bit image then resize using Pillow
+    
+    # Convert the heatmap (which is 224x224) to an 8-bit image and then resize it to the original dimensions
     heatmap_img = Image.fromarray((heatmap * 255).astype(np.uint8))
     heatmap_resized = np.array(heatmap_img.resize((orig_width, orig_height), resample=Image.BILINEAR)) / 255.0
     
-    # Calculate figure size (in inches) based on original dimensions and a scaling factor (e.g., DPI=150)
-    dpi = 150
-    fig_width = orig_width / dpi
-    fig_height = orig_height / dpi
-    
     # Plot the original image with the resized Grad‑CAM overlay
-    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+    fig, ax = plt.subplots(figsize=(orig_width/100, orig_height/100))
     ax.imshow(np.array(image))
-    # Set the extent to ensure the heatmap aligns with the original image dimensions
     ax.imshow(heatmap_resized, cmap='jet', alpha=0.5, extent=(0, orig_width, orig_height, 0))
     ax.axis('off')
     st.pyplot(fig)
