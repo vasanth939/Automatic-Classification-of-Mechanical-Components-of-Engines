@@ -172,19 +172,13 @@ if 'image' in locals():
     pred_class = class_names[pred_idx]
     st.markdown(f"**Predicted Class:** {pred_class}")
     
-   # Generate Grad‑CAM heatmap for the predicted class
+    # Generate Grad‑CAM heatmap for the predicted class
     heatmap = grad_cam(input_tensor, class_idx=pred_idx)
     
-    # Get original image dimensions
-    orig_width, orig_height = image.size
-    
-    # Convert the heatmap (which is 224x224) to an 8-bit image and then resize it to the original dimensions
-    heatmap_img = Image.fromarray((heatmap * 255).astype(np.uint8))
-    heatmap_resized = np.array(heatmap_img.resize((orig_width, orig_height), resample=Image.BILINEAR)) / 255.0
-    
-    # Plot the original image with the resized Grad‑CAM overlay
-    fig, ax = plt.subplots(figsize=(orig_width/100, orig_height/100))
-    ax.imshow(np.array(image))
-    ax.imshow(heatmap_resized, cmap='jet', alpha=0.5, extent=(0, orig_width, orig_height, 0))
+    # Plot the original image with Grad‑CAM overlay
+    fig, ax = plt.subplots(figsize=(6, 6))
+    img_np = np.array(image.resize((224, 224)))
+    ax.imshow(img_np)
+    ax.imshow(heatmap, cmap='jet', alpha=0.5, extent=(0, 224, 224, 0))
     ax.axis('off')
     st.pyplot(fig)
