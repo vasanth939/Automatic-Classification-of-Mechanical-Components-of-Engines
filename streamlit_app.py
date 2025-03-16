@@ -39,7 +39,7 @@ transform = transforms.Compose([
 ])
 
 # Update with your actual class names from training
-class_names = ["piston", "crankshaft", "valve", "camshaft"]
+class_names = ['bolt', 'locatingpin', 'nut', 'washer']
 
 # ----------------------------
 # Define Grad-CAM (using register_backward_hook to avoid conflicts)
@@ -104,19 +104,34 @@ if option == "Upload":
         image = Image.open(uploaded_file).convert("RGB")
         st.image(image, caption="Uploaded Image", use_column_width=True)
 elif option == "Sample":
-    sample_dir = "sample_dir"  # Updated folder name to match your GitHub repository
+    sample_dir = "sample_dir"  # Update with your folder name on GitHub
     try:
         sample_files = [f for f in os.listdir(sample_dir) if f.lower().endswith((".png", ".jpg", ".jpeg"))]
     except FileNotFoundError:
         st.error(f"Folder '{sample_dir}' not found. Please ensure the folder exists in your repository.")
         sample_files = []
+    
     if sample_files:
-        selected_sample = st.selectbox("Select a sample image", sample_files)
+        st.write("Click on one of the thumbnails below to select it for classification:")
+        # Create a grid of thumbnails using 3 columns per row
+        cols = st.columns(3)
+        selected_sample = None
+        for idx, file in enumerate(sample_files):
+            img_path = os.path.join(sample_dir, file)
+            thumb = Image.open(img_path).convert("RGB")
+            # Display each thumbnail in a grid cell
+            with cols[idx % 3]:
+                # Using the file name as a unique key for the button
+                if st.button(file, key=file):
+                    selected_sample = file
+                st.image(thumb, caption=file, width=150)
+        # Default to the first image if none was selected
+        if selected_sample is None:
+            selected_sample = sample_files[0]
         image = Image.open(os.path.join(sample_dir, selected_sample)).convert("RGB")
-        st.image(image, caption=f"Sample Image: {selected_sample}", use_column_width=True)
+        st.image(image, caption=f"Selected Image: {selected_sample}", use_column_width=False)
     else:
         st.write("No sample images found in the sample folder.")
-
 
 # If an image is available (either uploaded or sample), run the model prediction and Grad-CAM
 if 'image' in locals():
