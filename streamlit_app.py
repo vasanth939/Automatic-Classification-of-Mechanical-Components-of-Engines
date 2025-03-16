@@ -14,7 +14,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # ----------------------------
 # Load the model (cached to avoid reloading on every interaction)
-@st.cache(allow_output_mutation=True)
+@st.cache_resource
 def load_model():
     # Recreate the ResNet50 architecture
     model = models.resnet50(pretrained=False)
