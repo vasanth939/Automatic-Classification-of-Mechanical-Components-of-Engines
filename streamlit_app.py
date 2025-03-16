@@ -150,9 +150,9 @@ elif option == "Sample":
 # If an image is available, run model prediction and Grad‑CAM visualization
 if 'image' in locals():
     st.markdown("---")
-    st.success("Model Prediction & Grad‑CAM Visualization")
+    st.markdown("### Model Prediction & Grad‑CAM Visualization")
     
-    # Preprocess the image and create a batch for the model
+    # Preprocess the image and create a batch for the model (using 224x224 as required by the model)
     input_img = transform(image)
     input_tensor = input_img.unsqueeze(0).to(device)
     
@@ -160,20 +160,26 @@ if 'image' in locals():
     output = model(input_tensor)
     pred_idx = output.argmax(dim=1).item()
     pred_class = class_names[pred_idx]
-    st.success(f"Predicted Class: {pred_class}")
-
-    st.markdown("## Heatmap")
+    st.markdown(f"**Predicted Class:** {pred_class}")
+    
     # Generate Grad‑CAM heatmap for the predicted class
     heatmap = grad_cam(input_tensor, class_idx=pred_idx)
     
     # Resize the Grad‑CAM heatmap to match the original image dimensions
     orig_width, orig_height = image.size
-    heatmap_resized = Image.fromarray((heatmap * 255).astype(np.uint8)).resize((orig_width, orig_height), resample=Image.BILINEAR)
-    heatmap_resized = np.array(heatmap_resized) / 255.0
+    # Convert the heatmap to an 8-bit image then resize using Pillow
+    heatmap_img = Image.fromarray((heatmap * 255).astype(np.uint8))
+    heatmap_resized = np.array(heatmap_img.resize((orig_width, orig_height), resample=Image.BILINEAR)) / 255.0
     
-    # Plot the original image with Grad‑CAM overlay at original size
-    fig, ax = plt.subplots(figsize=(orig_width/100, orig_height/100))
+    # Calculate figure size (in inches) based on original dimensions and a scaling factor (e.g., DPI=150)
+    dpi = 150
+    fig_width = orig_width / dpi
+    fig_height = orig_height / dpi
+    
+    # Plot the original image with the resized Grad‑CAM overlay
+    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
     ax.imshow(np.array(image))
+    # Set the extent to ensure the heatmap aligns with the original image dimensions
     ax.imshow(heatmap_resized, cmap='jet', alpha=0.5, extent=(0, orig_width, orig_height, 0))
     ax.axis('off')
     st.pyplot(fig)
