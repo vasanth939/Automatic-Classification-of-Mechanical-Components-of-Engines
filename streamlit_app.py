@@ -88,16 +88,6 @@ class GradCAM:
 target_layer = model.layer4[-1]
 grad_cam = GradCAM(model, target_layer)
 
-import streamlit as st
-import torch
-import torchvision.transforms as transforms
-from torchvision import models
-import torch.nn as nn
-import numpy as np
-import matplotlib.pyplot as plt
-from PIL import Image
-import os
-
 # ----------------------------
 # Page configuration for a polished look
 st.set_page_config(
@@ -127,7 +117,7 @@ if option == "Upload":
     uploaded_file = st.file_uploader("Upload an image (PNG, JPG, JPEG)", type=["png", "jpg", "jpeg"])
     if uploaded_file is not None:
         image = Image.open(uploaded_file).convert("RGB")
-        st.image(image, caption="Uploaded Image", width=300)
+        st.image(image, caption="Uploaded Image")  # Display image at its original size
 elif option == "Sample":
     sample_dir = "sample_dir"  # Update with your folder name on GitHub
     try:
@@ -152,7 +142,7 @@ elif option == "Sample":
         if selected_sample is None:
             selected_sample = sample_files[0]
         image = Image.open(os.path.join(sample_dir, selected_sample)).convert("RGB")
-        st.image(image, caption=f"Selected Image: {selected_sample}", use_container_width=True)
+        st.image(image, caption=f"Selected Image: {selected_sample}")
     else:
         st.write("No sample images found in the sample folder.")
 
@@ -160,9 +150,9 @@ elif option == "Sample":
 # If an image is available, run model prediction and Grad‑CAM visualization
 if 'image' in locals():
     st.markdown("---")
-    st.markdown("### Model Prediction & Grad‑CAM Visualization")
+    st.success("Model Prediction & Grad‑CAM Visualization")
     
-    # Preprocess the image and create a batch
+    # Preprocess the image and create a batch for the model
     input_img = transform(image)
     input_tensor = input_img.unsqueeze(0).to(device)
     
@@ -170,15 +160,19 @@ if 'image' in locals():
     output = model(input_tensor)
     pred_idx = output.argmax(dim=1).item()
     pred_class = class_names[pred_idx]
-    st.markdown(f"**Predicted Class:** {pred_class}")
+    st.success(f"Predicted Class: {pred_class}")
     
     # Generate Grad‑CAM heatmap for the predicted class
     heatmap = grad_cam(input_tensor, class_idx=pred_idx)
     
-    # Plot the original image with Grad‑CAM overlay
-    fig, ax = plt.subplots(figsize=(6, 6))
-    img_np = np.array(image.resize((224, 224)))
-    ax.imshow(img_np)
-    ax.imshow(heatmap, cmap='jet', alpha=0.5, extent=(0, 224, 224, 0))
+    # Resize the Grad‑CAM heatmap to match the original image dimensions
+    orig_width, orig_height = image.size
+    heatmap_resized = Image.fromarray((heatmap * 255).astype(np.uint8)).resize((orig_width, orig_height), resample=Image.BILINEAR)
+    heatmap_resized = np.array(heatmap_resized) / 255.0
+    
+    # Plot the original image with Grad‑CAM overlay at original size
+    fig, ax = plt.subplots(figsize=(orig_width/100, orig_height/100))
+    ax.imshow(np.array(image))
+    ax.imshow(heatmap_resized, cmap='jet', alpha=0.5, extent=(0, orig_width, orig_height, 0))
     ax.axis('off')
     st.pyplot(fig)
