@@ -161,6 +161,8 @@ if 'image' in locals():
     pred_class = class_names[pred_idx]
     st.success(f"### **Predicted Class:** {pred_class}")
 
+
+    st.markdown("### Heatmap:")
     # Grad-CAM
     heatmap = grad_cam(input_tensor, class_idx=pred_idx)
 
