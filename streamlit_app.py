@@ -1,7 +1,7 @@
 import streamlit as st
 import torch
 import torchvision.transforms as transforms
-import pickle  # 🔥 Load .pkl model
+import joblib  # 🔥 Load .pkl model
 from torchvision import models
 from PIL import Image
 import os
@@ -23,7 +23,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 @st.cache_resource
 def load_model():
     with open("svm_resnet50_model.pkl", "rb") as f:
-        model = pickle.load(f)  # 🔥 Load model
+        model = joblib.load(f)  # 🔥 Load model
     model.to(device)
     model.eval()
     return model
