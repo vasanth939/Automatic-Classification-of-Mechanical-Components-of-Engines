@@ -8,7 +8,7 @@ import torchvision.models as models
 import asyncio
 
 # Fix asyncio issue with Streamlit
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+#asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 # Ensure correct Scikit-learn version (1.2.2)
 try:
