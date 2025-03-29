@@ -65,7 +65,7 @@ if os.path.exists(example_folder):
     cols = st.columns(len(example_files))
     for i, file in enumerate(example_files):
         img_path = os.path.join(example_folder, file)
-        cols[i].image(img_path, caption=file.split(".")[0], use_column_width=True)
+        cols[i].image(img_path, caption=file.split(".")[0], use_container_width=True)
 else:
     st.warning("No example images found. Make sure `example_images/` folder exists.")
 
