@@ -1,9 +1,16 @@
-joblib
+# Essential Dependencies
+numpy==1.23.5
+pandas
 scikit-learn==1.2.2
-torch
-torchvision
 streamlit
-numpy
+
+# Machine Learning & Deep Learning
+torch==2.1.0
+torchvision==0.16.0
+torchaudio==2.1.0
+
+# Other Dependencies (Modify if needed)
+scipy
+joblib
 matplotlib
 seaborn
-tqdm
