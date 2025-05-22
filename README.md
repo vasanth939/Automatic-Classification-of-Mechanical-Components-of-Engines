@@ -1,5 +1,5 @@
 # Automatic Classification of Mechanical Components of Engines
-##HELLO ARJUN BOJANAM CHESAVAA
+#HELLO ARJUN BOJANAM CHESAVAA
 This project leverages deep learning techniques to automatically classify mechanical components such as bearings, nuts, gears, and bolts. Accurate classification is vital for applications like sorting, inspection, and quality control in manufacturing processes.
 
 
